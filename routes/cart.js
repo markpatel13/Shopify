@@ -22,8 +22,8 @@ const getUserCart = (userId) => {
 // Helper function to calculate cart totals
 const calculateCartTotals = (cartItems) => {
     const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const tax = subtotal * 0.08; // 8% tax
-    const shipping = subtotal >= 100 ? 0 : 10; // Free shipping over $100
+    const tax = subtotal * 0.18; // 18% GST
+    const shipping = subtotal >= 5000 ? 0 : 500; // Free shipping over ₹5000
     const total = subtotal + tax + shipping;
     
     return {

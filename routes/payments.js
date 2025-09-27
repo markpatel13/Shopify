@@ -10,7 +10,7 @@ const router = express.Router();
 router.post('/create-intent', [
     auth,
     body('amount').isNumeric().withMessage('Valid amount is required'),
-    body('currency').isIn(['usd', 'eur', 'gbp']).withMessage('Valid currency is required')
+    body('currency').isIn(['inr', 'usd', 'eur', 'gbp']).withMessage('Valid currency is required')
 ], async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -22,7 +22,7 @@ router.post('/create-intent', [
             });
         }
         
-        const { amount, currency = 'usd', metadata = {} } = req.body;
+        const { amount, currency = 'inr', metadata = {} } = req.body;
         
         // Simulate payment intent creation (would integrate with Stripe in production)
         const paymentIntent = {
@@ -81,7 +81,7 @@ router.post('/confirm', [
             id: paymentIntentId,
             status: 'succeeded',
             amount: 2999, // Example amount in cents
-            currency: 'usd',
+            currency: 'inr',
             paymentMethod: paymentMethodId,
             receiptUrl: `https://pay.stripe.com/receipts/${paymentIntentId}`,
             confirmedAt: new Date().toISOString()

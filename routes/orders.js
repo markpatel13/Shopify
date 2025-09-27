@@ -84,7 +84,7 @@ router.post('/', [
         // Calculate taxes (8% for demonstration)
         const tax = subtotal * 0.08;
         
-        // Calculate shipping (free for orders over $100)
+        // Calculate shipping (free for orders over ₹5000)
         const shipping = subtotal >= 100 ? 0 : 10;
         
         // Apply coupon discount if provided

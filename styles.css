@@ -1239,6 +1239,145 @@ body {
     background: var(--gray-50);
 }
 
+/* Success Modal */
+.success-modal {
+    width: 500px;
+    max-width: 95vw;
+    background: var(--white);
+    border-radius: 16px;
+    text-align: center;
+    overflow: visible;
+}
+
+.success-content {
+    padding: 40px 32px;
+}
+
+.success-icon {
+    margin-bottom: 24px;
+}
+
+.success-icon i {
+    font-size: 4rem;
+    color: var(--success-color);
+    animation: successPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes successPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.success-content h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 16px;
+}
+
+.success-content p {
+    color: var(--gray-600);
+    margin-bottom: 24px;
+}
+
+.success-details {
+    background: var(--gray-100);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 24px 0;
+    text-align: left;
+}
+
+.success-details p {
+    margin: 8px 0;
+    font-size: 0.9rem;
+    color: var(--gray-700);
+}
+
+.success-actions {
+    margin-top: 32px;
+}
+
+/* Add Product Modal */
+.add-product-modal {
+    width: 800px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: var(--white);
+    border-radius: 16px;
+}
+
+.add-product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.add-product-form .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.add-product-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.add-product-form label {
+    font-weight: 500;
+    color: var(--gray-700);
+    font-size: 0.9rem;
+}
+
+.add-product-form input,
+.add-product-form select,
+.add-product-form textarea {
+    padding: 12px 16px;
+    border: 2px solid var(--gray-300);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color var(--transition-fast);
+}
+
+.add-product-form input:focus,
+.add-product-form select:focus,
+.add-product-form textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.add-product-form textarea {
+    resize: vertical;
+    font-family: inherit;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid var(--gray-200);
+}
+
+.form-actions .btn {
+    min-width: 120px;
+}
+
+@media (max-width: 768px) {
+    .add-product-form .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .add-product-modal {
+        width: 95vw;
+        margin: 20px;
+    }
+}
+
 /* Checkout Modal */
 .checkout-modal {
     width: 1200px;

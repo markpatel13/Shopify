@@ -1,5 +1,5 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
@@ -24,7 +24,7 @@ const uploadRoutes = require('./routes/upload');
 const analyticsRoutes = require('./routes/analytics');
 
 // Import middleware
-const errorHandler = require('./middleware/errorHandler');
+const { errorHandler } = require('./middleware/errorHandler');
 const logger = require('./utils/logger');
 
 // Create Express app
@@ -137,13 +137,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/wishlist', wishlistRoutes);
-app.use('/api/reviews', reviewRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/payments', paymentRoutes);
-app.use('/api/upload', uploadRoutes);
-app.use('/api/analytics', analyticsRoutes);
 
 // API Documentation endpoint
 app.get('/api', (req, res) => {
@@ -213,36 +207,95 @@ app.use('*', (req, res) => {
 // Global error handler
 app.use(errorHandler);
 
-// Database connection
+// SQLite Database connection
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/shopify_elite', {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            maxPoolSize: 10,
-            serverSelectionTimeoutMS: 5000,
-            socketTimeoutMS: 45000,
+        const db = new sqlite3.Database('./database.sqlite', (err) => {
+            if (err) {
+                logger.error('SQLite connection failed:', err);
+                process.exit(1);
+            }
+            logger.info('SQLite Database Connected');
         });
         
-        logger.info(`MongoDB Connected: ${conn.connection.host}`);
+        // Make db available globally
+        global.db = db;
         
-        // Handle connection events
-        mongoose.connection.on('error', (err) => {
-            logger.error('MongoDB connection error:', err);
-        });
-        
-        mongoose.connection.on('disconnected', () => {
-            logger.warn('MongoDB disconnected');
-        });
-        
-        mongoose.connection.on('reconnected', () => {
-            logger.info('MongoDB reconnected');
-        });
+        // Initialize database tables
+        await initializeTables();
         
     } catch (error) {
         logger.error('Database connection failed:', error);
         process.exit(1);
     }
+};
+
+// Initialize SQLite tables
+const initializeTables = () => {
+    return new Promise((resolve, reject) => {
+        const db = global.db;
+        
+        // Users table
+        db.run(`CREATE TABLE IF NOT EXISTS users (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            role TEXT DEFAULT 'customer',
+            isActive INTEGER DEFAULT 1,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+        
+        // Products table
+        db.run(`CREATE TABLE IF NOT EXISTS products (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            description TEXT,
+            price REAL NOT NULL,
+            category TEXT,
+            sku TEXT UNIQUE,
+            stock INTEGER DEFAULT 0,
+            status TEXT DEFAULT 'active',
+            images TEXT,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+        
+        // Orders table
+        db.run(`CREATE TABLE IF NOT EXISTS orders (
+            id TEXT PRIMARY KEY,
+            orderNumber TEXT UNIQUE NOT NULL,
+            customerId TEXT NOT NULL,
+            items TEXT NOT NULL,
+            subtotal REAL NOT NULL,
+            tax REAL NOT NULL,
+            total REAL NOT NULL,
+            status TEXT DEFAULT 'pending',
+            shippingAddress TEXT,
+            paymentMethod TEXT,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (customerId) REFERENCES users(id)
+        )`);
+        
+        // Categories table
+        db.run(`CREATE TABLE IF NOT EXISTS categories (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            slug TEXT UNIQUE NOT NULL,
+            description TEXT,
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`, (err) => {
+            if (err) {
+                logger.error('Error creating tables:', err);
+                reject(err);
+            } else {
+                logger.info('Database tables initialized');
+                resolve();
+            }
+        });
+    });
 };
 
 // Graceful shutdown handling
@@ -252,10 +305,18 @@ const gracefulShutdown = (signal) => {
     httpServer.close(() => {
         logger.info('HTTP server closed');
         
-        mongoose.connection.close(false, () => {
-            logger.info('MongoDB connection closed');
+        if (global.db) {
+            global.db.close((err) => {
+                if (err) {
+                    logger.error('Error closing SQLite database:', err);
+                } else {
+                    logger.info('SQLite database connection closed');
+                }
+                process.exit(0);
+            });
+        } else {
             process.exit(0);
-        });
+        }
     });
     
     // Force shutdown after 30 seconds

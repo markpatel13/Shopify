@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
+const Order = require('../models/Order');
 const { auth } = require('../middleware/auth');
 const { adminAuth } = require('../middleware/adminAuth');
 const logger = require('../utils/logger');
@@ -234,6 +235,112 @@ router.put('/users/:id/status', [
         res.status(500).json({
             status: 'error',
             message: 'Failed to update user status'
+        });
+    }
+});
+
+// @route   GET /api/admin/orders
+// @desc    Get all orders for admin
+// @access  Private/Admin
+router.get('/orders', [auth, adminAuth], async (req, res) => {
+    try {
+        const { page = 1, limit = 20, status, startDate, endDate } = req.query;
+        
+        // Build query
+        const query = {};
+        if (status) {
+            query.status = status;
+        }
+        if (startDate || endDate) {
+            query.createdAt = {};
+            if (startDate) query.createdAt.$gte = new Date(startDate);
+            if (endDate) query.createdAt.$lte = new Date(endDate);
+        }
+        
+        const skip = (page - 1) * limit;
+        
+        const orders = await Order.find(query)
+            .populate('customer', 'name email')
+            .populate('items.product', 'name images')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+            
+        const totalOrders = await Order.countDocuments(query);
+        
+        res.json({
+            status: 'success',
+            data: {
+                orders,
+                pagination: {
+                    currentPage: parseInt(page),
+                    totalPages: Math.ceil(totalOrders / limit),
+                    totalOrders,
+                    hasNextPage: page < Math.ceil(totalOrders / limit),
+                    hasPrevPage: page > 1
+                }
+            }
+        });
+        
+    } catch (error) {
+        logger.error('Get admin orders error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to fetch orders'
+        });
+    }
+});
+
+// @route   PUT /api/admin/orders/:id/status
+// @desc    Update order status
+// @access  Private/Admin
+router.put('/orders/:id/status', [
+    auth,
+    adminAuth,
+    body('status').isIn(['pending', 'processing', 'shipped', 'delivered', 'cancelled']).withMessage('Invalid status')
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Validation failed',
+                errors: errors.array()
+            });
+        }
+        
+        const { status } = req.body;
+        const orderId = req.params.id;
+        
+        const order = await Order.findByIdAndUpdate(
+            orderId,
+            { 
+                status,
+                updatedAt: new Date()
+            },
+            { new: true }
+        ).populate('customer', 'name email');
+        
+        if (!order) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Order not found'
+            });
+        }
+        
+        logger.info(`Order ${order.orderNumber} status updated to ${status} by admin ${req.user.email}`);
+        
+        res.json({
+            status: 'success',
+            message: 'Order status updated successfully',
+            data: { order }
+        });
+        
+    } catch (error) {
+        logger.error('Update order status error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to update order status'
         });
     }
 });

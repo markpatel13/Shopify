@@ -14,8 +14,8 @@ const sampleProducts = [
         id: 1,
         name: "Premium Wireless Headphones",
         category: "electronics",
-        price: 299.99,
-        originalPrice: 399.99,
+        price: 24899,
+        originalPrice: 33199,
         image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop&crop=center",
         description: "High-quality wireless headphones with noise cancellation and premium sound quality.",
         rating: 4.8,
@@ -26,8 +26,8 @@ const sampleProducts = [
         id: 2,
         name: "Smart Fitness Watch",
         category: "electronics",
-        price: 199.99,
-        originalPrice: 249.99,
+        price: 16599,
+        originalPrice: 20749,
         image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop&crop=center",
         description: "Track your fitness goals with this advanced smartwatch featuring heart rate monitoring.",
         rating: 4.6,
@@ -38,8 +38,8 @@ const sampleProducts = [
         id: 3,
         name: "Designer Leather Jacket",
         category: "fashion",
-        price: 189.99,
-        originalPrice: 299.99,
+        price: 15769,
+        originalPrice: 24899,
         image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=300&fit=crop&crop=center",
         description: "Genuine leather jacket with modern design, perfect for any occasion.",
         rating: 4.9,
@@ -50,7 +50,7 @@ const sampleProducts = [
         id: 4,
         name: "Modern Coffee Table",
         category: "home",
-        price: 149.99,
+        price: 12449,
         originalPrice: null,
         image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop&crop=center",
         description: "Elegant coffee table that complements any modern living room decor.",
@@ -62,8 +62,8 @@ const sampleProducts = [
         id: 5,
         name: "Professional Running Shoes",
         category: "sports",
-        price: 129.99,
-        originalPrice: 179.99,
+        price: 10789,
+        originalPrice: 14939,
         image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop&crop=center",
         description: "Lightweight running shoes designed for professional athletes and fitness enthusiasts.",
         rating: 4.5,
@@ -74,8 +74,8 @@ const sampleProducts = [
         id: 6,
         name: "Luxury Skincare Set",
         category: "fashion",
-        price: 89.99,
-        originalPrice: 120.99,
+        price: 7469,
+        originalPrice: 10042,
         image: "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=400&h=300&fit=crop&crop=center",
         description: "Complete skincare routine with premium organic ingredients for radiant skin.",
         rating: 4.8,
@@ -86,8 +86,8 @@ const sampleProducts = [
         id: 7,
         name: "4K Gaming Monitor",
         category: "electronics",
-        price: 449.99,
-        originalPrice: 599.99,
+        price: 37349,
+        originalPrice: 49799,
         image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&h=300&fit=crop&crop=center",
         description: "Ultra-wide 4K gaming monitor with HDR support and 144Hz refresh rate.",
         rating: 4.9,
@@ -179,32 +179,10 @@ function setupEventListeners() {
     // Add Product form submission
     const addProductForm = document.getElementById("addProductForm");
     if (addProductForm) {
-        addProductForm.addEventListener("submit", (e) => {
+        addProductForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-
-            const newProduct = {
-                id: products.length + 1,
-                name: document.getElementById("productName").value,
-                price: parseFloat(document.getElementById("productPrice").value),
-                category: document.getElementById("productCategory").value.toLowerCase(),
-                image: document.getElementById("productImage").value,
-                description: "",
-                rating: 0,
-                reviews: 0
-            };
-
-            // Add product to products array
-            products.push(newProduct);
-
-            // Re-render product management table
-            updateAdminProducts();
-
-            // Close modal and reset form
-            closeAddProductModal();
-            addProductForm.reset();
-
-            // Show success message
-            showToast("Product added successfully!", "success");
+            
+            await submitNewProduct();
         });
     }
     
@@ -385,8 +363,8 @@ function createProductCard(product) {
             </div>
             <div class="product-price">
                 <div>
-                    <span class="price-current">$${product.price}</span>
-                    ${product.originalPrice ? `<span class="price-original">$${product.originalPrice}</span>` : ''}
+                    <span class="price-current">₹${product.price.toLocaleString('en-IN')}</span>
+                    ${product.originalPrice ? `<span class="price-original">₹${product.originalPrice.toLocaleString('en-IN')}</span>` : ''}
                 </div>
             </div>
             <button class="add-to-cart-btn" onclick="addToCart(${product.id})">
@@ -533,7 +511,7 @@ function updateCartUI() {
                 <img src="${item.image}" alt="${item.name}" class="cart-item-image" onerror="this.src='https://via.placeholder.com/80x80?text=Product'">
                 <div class="cart-item-info">
                     <div class="cart-item-name">${item.name}</div>
-                    <div class="cart-item-price">$${item.price}</div>
+                    <div class="cart-item-price">₹${item.price.toLocaleString('en-IN')}</div>
                     <div class="quantity-controls">
                         <button class="quantity-btn" onclick="updateCartQuantity(${item.id}, ${item.quantity - 1})">
                             <i class="fas fa-minus"></i>
@@ -553,8 +531,8 @@ function updateCartUI() {
         
         // Calculate totals
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        cartSubtotal.textContent = `$${subtotal.toFixed(2)}`;
-        cartTotal.textContent = `$${subtotal.toFixed(2)}`;
+        cartSubtotal.textContent = `₹${Math.round(subtotal).toLocaleString('en-IN')}`;
+        cartTotal.textContent = `₹${Math.round(subtotal).toLocaleString('en-IN')}`;
     }
 }
 
@@ -710,7 +688,7 @@ function updateAdminMetrics() {
     totalOrdersEl.textContent = allOrders.length;
 
     const totalRevenue = allOrders.reduce((sum, order) => sum + order.total, 0);
-    totalRevenueEl.textContent = `$${totalRevenue.toFixed(2)}`;
+    totalRevenueEl.textContent = `₹${Math.round(totalRevenue).toLocaleString('en-IN')}`;
 
     const uniqueCustomers = new Set(allOrders.map(order => order.customer.email)).size;
     totalCustomersEl.textContent = uniqueCustomers;
@@ -743,13 +721,104 @@ function closeCheckoutModal() {
 }
 
 function openAddProductModal() {
-    document.getElementById("addProductModal").style.display = "flex";
+    document.getElementById("addProductModal").classList.add('active');
     document.body.style.overflow = 'hidden';
+    
+    // Clear form
+    document.getElementById('addProductForm').reset();
 }
 
 function closeAddProductModal() {
-    document.getElementById("addProductModal").style.display = "none";
+    document.getElementById("addProductModal").classList.remove('active');
     document.body.style.overflow = 'auto';
+}
+
+async function submitNewProduct() {
+    try {
+        showLoadingOverlay();
+        
+        // Get form data
+        const formData = {
+            name: document.getElementById('productName').value,
+            description: document.getElementById('productDescription').value || 'No description available',
+            price: parseFloat(document.getElementById('productPrice').value),
+            category: await getCategoryIdByName(document.getElementById('productCategory').value),
+            sku: document.getElementById('productSku').value || `SKU-${Date.now()}`,
+            inventory: {
+                stock: parseInt(document.getElementById('productStock').value) || 0,
+                trackInventory: true
+            },
+            status: document.getElementById('productStatus').value || 'active',
+            images: []
+        };
+        
+        // Add image if provided
+        const imageUrl = document.getElementById('productImage').value;
+        if (imageUrl) {
+            formData.images = [{
+                url: imageUrl,
+                isDefault: true,
+                alt: formData.name
+            }];
+        }
+        
+        // Make API call
+        const response = await fetch('/api/products', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to create product');
+        }
+        
+        const result = await response.json();
+        
+        // Add to local products array for immediate UI update
+        const newProduct = {
+            id: result.data.product._id,
+            name: formData.name,
+            price: formData.price,
+            category: document.getElementById('productCategory').value.toLowerCase(),
+            image: imageUrl || 'https://via.placeholder.com/400x300?text=No+Image',
+            description: formData.description,
+            rating: 0,
+            reviews: 0,
+            badge: 'New'
+        };
+        
+        sampleProducts.push(newProduct);
+        
+        // Close modal and reset form
+        closeAddProductModal();
+        hideLoadingOverlay();
+        
+        // Show success message
+        showToast('Product added successfully!', 'success');
+        
+        // Refresh products display
+        loadProducts();
+        
+    } catch (error) {
+        console.error('Add product error:', error);
+        hideLoadingOverlay();
+        showToast(error.message || 'Failed to add product', 'error');
+    }
+}
+
+async function getCategoryIdByName(categoryName) {
+    try {
+        // For now, return the category name as we're using sample data
+        // In a real implementation, this would fetch category ID from API
+        return categoryName;
+    } catch (error) {
+        return categoryName;
+    }
 }
 
 function nextCheckoutStep() {
@@ -883,14 +952,14 @@ function populateOrderSummary() {
                         <div class="order-product-name">${item.name}</div>
                         <div class="order-product-details">Quantity: ${item.quantity}</div>
                     </div>
-                    <div class="order-product-price">$${(item.price * item.quantity).toFixed(2)}</div>
+                    <div class="order-product-price">₹${(item.price * item.quantity).toLocaleString('en-IN')}</div>
                 </div>
             `).join('')}
         </div>
         <div class="cart-total">
             <div class="total-row">
                 <span>Subtotal:</span>
-                <span>$${subtotal.toFixed(2)}</span>
+                <span>₹${Math.round(subtotal).toLocaleString('en-IN')}</span>
             </div>
             <div class="total-row">
                 <span>Shipping:</span>
@@ -898,11 +967,11 @@ function populateOrderSummary() {
             </div>
             <div class="total-row">
                 <span>Tax:</span>
-                <span>$${(subtotal * 0.08).toFixed(2)}</span>
+                <span>₹${Math.round(subtotal * 0.18).toLocaleString('en-IN')}</span>
             </div>
             <div class="total-row total-final">
                 <span>Total:</span>
-                <span>$${(subtotal * 1.08).toFixed(2)}</span>
+                <span>₹${Math.round(subtotal * 1.18).toLocaleString('en-IN')}</span>
             </div>
         </div>
     `;
@@ -915,15 +984,55 @@ function handlePaymentMethodSelection(e) {
     e.currentTarget.classList.add('active');
 }
 
-function placeOrder() {
+async function placeOrder() {
     showLoadingOverlay();
     
-    setTimeout(() => {
-        const orderId = 'ORD-' + Date.now();
+    try {
+        // Get form data
+        const form = document.getElementById('checkoutForm');
+        const formData = new FormData(form);
+        
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const tax = subtotal * 0.08;
+        const tax = subtotal * 0.18; // 18% GST
         const total = subtotal + tax;
         
+        // Prepare order data for API
+        const orderData = {
+            items: cart.map(item => ({
+                product: item.id.toString(), // Convert to string ID
+                quantity: item.quantity,
+                variant: null
+            })),
+            shippingAddress: {
+                name: `${formData.get('firstName')} ${formData.get('lastName')}`,
+                street: formData.get('address'),
+                city: formData.get('city'),
+                state: formData.get('state'),
+                country: 'India',
+                zipCode: formData.get('zipCode')
+            },
+            paymentMethod: 'credit_card',
+            notes: 'Order placed from web interface'
+        };
+        
+        // Make API call to create order
+        const response = await fetch('/api/orders', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(orderData)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to place order');
+        }
+        
+        const result = await response.json();
+        const orderId = result.data.order.orderNumber;
+        
+        // Create local order object for UI
         const order = {
             id: orderId,
             items: [...cart],
@@ -950,9 +1059,10 @@ function placeOrder() {
         closeCheckoutModal();
         hideLoadingOverlay();
         
-        showToast(`Order ${orderId} placed successfully!`, 'success');
+        // Show success message
+        showOrderSuccess(orderId);
         
-        // Show order confirmation
+        // Navigate to orders page after success
         setTimeout(() => {
             showSection('orders');
             document.querySelector('[href="#orders"]').classList.add('active');
@@ -961,11 +1071,60 @@ function placeOrder() {
                     link.classList.remove('active');
                 }
             });
+            loadUserOrders();
+        }, 3000);
+        
+    } catch (error) {
+        console.error('Order placement error:', error);
+        hideLoadingOverlay();
+        showToast('Failed to place order. Please try again.', 'error');
+    }
+}
 
-            // Send email notification (simulated)
-            console.log('Sending order confirmation email to:', currentUser.email, 'for order:', orderId);
-        }, 1000);
-    }, 2000);
+// Show order success modal
+function showOrderSuccess(orderId) {
+    // Create success modal
+    const successModal = document.createElement('div');
+    successModal.className = 'modal-overlay active';
+    successModal.style.zIndex = '10000';
+    
+    successModal.innerHTML = `
+        <div class="modal success-modal">
+            <div class="success-content">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>Order Placed Successfully!</h3>
+                <p>Your order <strong>${orderId}</strong> has been confirmed.</p>
+                <div class="success-details">
+                    <p>✅ Payment processed successfully</p>
+                    <p>📦 Order is being prepared</p>
+                    <p>📧 Confirmation email sent</p>
+                </div>
+                <div class="success-actions">
+                    <button class="btn btn-primary" onclick="closeSuccessModal(this)">
+                        View My Orders
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(successModal);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (document.body.contains(successModal)) {
+            document.body.removeChild(successModal);
+        }
+    }, 5000);
+}
+
+function closeSuccessModal(button) {
+    const modal = button.closest('.modal-overlay');
+    if (modal && document.body.contains(modal)) {
+        document.body.removeChild(modal);
+    }
 }
 
 // Orders functionality
@@ -1015,11 +1174,11 @@ function loadUserOrders() {
                                 <div class="order-product-name">${item.name}</div>
                                 <div class="order-product-details">Quantity: ${item.quantity}</div>
                             </div>
-                            <div class="order-product-price">$${(item.price * item.quantity).toFixed(2)}</div>
+                            <div class="order-product-price">₹${(item.price * item.quantity).toLocaleString('en-IN')}</div>
                         </div>
                     `).join('')}
                 </div>
-                <div class="order-total">Total: $${order.total.toFixed(2)}</div>
+                <div class="order-total">Total: ₹${Math.round(order.total).toLocaleString('en-IN')}</div>
             </div>
         `).join('');
     }
@@ -1048,56 +1207,99 @@ function updateAdminMetrics() {
     document.getElementById('totalOrders').textContent = allOrders.length;
     
     const totalRevenue = allOrders.reduce((sum, order) => sum + order.total, 0);
-    document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
+    document.getElementById('totalRevenue').textContent = `₹${Math.round(totalRevenue).toLocaleString('en-IN')}`;
     
     const uniqueCustomers = new Set(allOrders.map(order => order.customer.email)).size;
     document.getElementById('totalCustomers').textContent = uniqueCustomers;
 }
 
-function loadAdminOrders() {
+async function loadAdminOrders() {
     const adminOrdersList = document.getElementById('adminOrdersList');
     
-    if (allOrders.length === 0) {
+    try {
+        // Show loading state
         adminOrdersList.innerHTML = `
             <div class="empty-state">
-                <i class="fas fa-clipboard-list empty-icon"></i>
-                <h3>No orders found</h3>
-                <p>Orders will appear here once customers start purchasing</p>
+                <i class="fas fa-spinner fa-spin empty-icon"></i>
+                <h3>Loading orders...</h3>
             </div>
         `;
-    } else {
-        adminOrdersList.innerHTML = allOrders.map(order => `
-            <div class="order-item">
-                <div class="order-header">
-                    <div class="order-id">Order ${order.id}</div>
-                    <div class="order-date">${new Date(order.date).toLocaleDateString()}</div>
-                    <div class="order-status status-${order.status.toLowerCase()}">${order.status}</div>
+        
+        // Fetch orders from API
+        const response = await fetch('/api/admin/orders', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch orders');
+        }
+        
+        const result = await response.json();
+        const orders = result.data?.orders || [];
+        
+        // Update allOrders array for local reference
+        allOrders = orders;
+        
+        if (orders.length === 0) {
+            adminOrdersList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-clipboard-list empty-icon"></i>
+                    <h3>No orders found</h3>
+                    <p>Orders will appear here once customers start purchasing</p>
                 </div>
-                <div class="order-customer">
-                    <strong>Customer:</strong> ${order.customer.name} (${order.customer.email})
-                </div>
-                <div class="order-items">
-                    ${order.items.map(item => `
-                        <div class="order-product">
-                            <img src="${item.image}" alt="${item.name}" class="order-product-image" onerror="this.src='https://via.placeholder.com/60x60?text=Product'">
-                            <div class="order-product-info">
-                                <div class="order-product-name">${item.name}</div>
-                                <div class="order-product-details">Quantity: ${item.quantity}</div>
+            `;
+        } else {
+            adminOrdersList.innerHTML = orders.map(order => `
+                <div class="order-item">
+                    <div class="order-header">
+                        <div class="order-id">Order ${order.orderNumber || order._id}</div>
+                        <div class="order-date">${new Date(order.createdAt).toLocaleDateString()}</div>
+                        <div class="order-status status-${order.status.toLowerCase()}">${order.status}</div>
+                    </div>
+                    <div class="order-customer">
+                        <strong>Customer:</strong> ${order.customer?.name || 'N/A'} (${order.customer?.email || 'N/A'})
+                    </div>
+                    <div class="order-items">
+                        ${order.items.map(item => `
+                            <div class="order-product">
+                                <img src="${item.productSnapshot?.image || item.product?.images?.[0]?.url || 'https://via.placeholder.com/60x60?text=Product'}" 
+                                     alt="${item.productSnapshot?.name || item.product?.name || 'Product'}" 
+                                     class="order-product-image" 
+                                     onerror="this.src='https://via.placeholder.com/60x60?text=Product'">
+                                <div class="order-product-info">
+                                    <div class="order-product-name">${item.productSnapshot?.name || item.product?.name || 'Product'}</div>
+                                    <div class="order-product-details">Quantity: ${item.quantity}</div>
+                                </div>
+                                <div class="order-product-price">₹${(item.price * item.quantity).toLocaleString('en-IN')}</div>
                             </div>
-                            <div class="order-product-price">$${(item.price * item.quantity).toFixed(2)}</div>
-                        </div>
-                    `).join('')}
+                        `).join('')}
+                    </div>
+                    <div class="order-total">Total: ₹${Math.round(order.pricing?.total || order.total || 0).toLocaleString('en-IN')}</div>
+                    <div class="order-actions" style="margin-top: 16px;">
+                        <select class="status-select" onchange="updateOrderStatus('${order._id}', this.value)">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                            <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="order-total">Total: $${order.total.toFixed(2)}</div>
-                <div class="order-actions" style="margin-top: 16px;">
-                    <select class="status-select" onchange="updateOrderStatus('${order.id}', this.value)">
-                        <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
-                        <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
-                        <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-                    </select>
-                </div>
+            `).join('');
+        }
+        
+    } catch (error) {
+        console.error('Error loading admin orders:', error);
+        adminOrdersList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-exclamation-triangle empty-icon"></i>
+                <h3>Error Loading Orders</h3>
+                <p>Failed to load orders. Please try again.</p>
+                <button class="btn btn-primary" onclick="loadAdminOrders()">Retry</button>
             </div>
-        `).join('');
+        `;
     }
 }
 
@@ -1121,19 +1323,40 @@ function handleAdminTab(e) {
     }
 }
 
-function updateOrderStatus(orderId, newStatus) {
-    const order = allOrders.find(o => o.id === orderId);
-    if (order) {
-        order.status = newStatus;
+async function updateOrderStatus(orderId, newStatus) {
+    try {
+        const response = await fetch(`/api/admin/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
         
-        // Update in user orders as well
-        const userOrder = orders.find(o => o.id === orderId);
+        if (!response.ok) {
+            throw new Error('Failed to update order status');
+        }
+        
+        // Update local arrays
+        const order = allOrders.find(o => o._id === orderId);
+        if (order) {
+            order.status = newStatus;
+        }
+        
+        const userOrder = orders.find(o => o._id === orderId);
         if (userOrder) {
             userOrder.status = newStatus;
         }
         
-        saveOrdersToStorage();
-        showToast(`Order ${orderId} status updated to ${newStatus}`, 'success');
+        showToast(`Order status updated to ${newStatus}`, 'success');
+        
+    } catch (error) {
+        console.error('Error updating order status:', error);
+        showToast('Failed to update order status', 'error');
+        
+        // Reload admin orders to revert the UI change
+        loadAdminOrders();
     }
 }
 
@@ -1255,8 +1478,8 @@ function updateOrderSummary() {
     
     // Calculate totals
     const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-    const shipping = subtotal > 100 ? 0 : 10;
-    const tax = subtotal * 0.08; // 8% tax
+    const shipping = subtotal > 5000 ? 0 : 500; // Free shipping over ₹5000
+    const tax = subtotal * 0.18; // 18% GST
     const total = subtotal + shipping + tax;
     
     // Update summary items
@@ -1269,15 +1492,15 @@ function updateOrderSummary() {
                     <p>Qty: ${item.quantity}</p>
                 </div>
             </div>
-            <span>$${(item.price * item.quantity).toFixed(2)}</span>
+            <span>₹${(item.price * item.quantity).toLocaleString('en-IN')}</span>
         </div>
     `).join('');
     
     // Update totals
-    subtotalAmount.textContent = `$${subtotal.toFixed(2)}`;
-    shippingAmount.textContent = shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`;
-    taxAmount.textContent = `$${tax.toFixed(2)}`;
-    totalAmount.textContent = `$${total.toFixed(2)}`;
+    subtotalAmount.textContent = `₹${Math.round(subtotal).toLocaleString('en-IN')}`;
+    shippingAmount.textContent = shipping === 0 ? 'FREE' : `₹${shipping.toLocaleString('en-IN')}`;
+    taxAmount.textContent = `₹${Math.round(tax).toLocaleString('en-IN')}`;
+    totalAmount.textContent = `₹${Math.round(total).toLocaleString('en-IN')}`;
     
     // Also update the review step if it's visible
     const reviewTotal = document.querySelector('.form-step[data-step="3"] .order-review .order-summary');
@@ -1286,19 +1509,19 @@ function updateOrderSummary() {
             <div class="review-totals">
                 <div class="total-row">
                     <span>Subtotal:</span>
-                    <span>$${subtotal.toFixed(2)}</span>
+                    <span>₹${Math.round(subtotal).toLocaleString('en-IN')}</span>
                 </div>
                 <div class="total-row">
                     <span>Shipping:</span>
-                    <span>${shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</span>
+                    <span>${shipping === 0 ? 'FREE' : `₹${shipping.toLocaleString('en-IN')}`}</span>
                 </div>
                 <div class="total-row">
-                    <span>Tax:</span>
-                    <span>$${tax.toFixed(2)}</span>
+                    <span>GST (18%):</span>
+                    <span>₹${Math.round(tax).toLocaleString('en-IN')}</span>
                 </div>
                 <div class="total-row grand-total">
                     <span>Total:</span>
-                    <span>$${total.toFixed(2)}</span>
+                    <span>₹${Math.round(total).toLocaleString('en-IN')}</span>
                 </div>
             </div>
         `;
