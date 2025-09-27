@@ -2,6 +2,12 @@
 
 A stunning, modern e-commerce website with a focus on user experience and visual appeal. Built with vanilla HTML5, CSS3, and JavaScript for maximum compatibility and performance.
 
+
+TEAM MEMBERS:
+Samad Sama 
+Mark Patel
+Mir Patel
+Keya Sonaiya
 ## 🌟 Features
 
 ### Core Functionality
