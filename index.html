@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopify Elite - Premium Shopping Experience</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-gem brand-icon"></i>
+                <span class="brand-text">Shopify Elite</span>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#products" class="nav-link">Products</a>
+                <a href="#orders" class="nav-link">Orders</a>
+                <a href="#admin" class="nav-link" id="adminLink">Admin</a>
+            </div>
+            
+            <div class="nav-actions">
+                <div class="search-container">
+                    <input type="text" placeholder="Search products..." class="search-input" id="searchInput">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                
+                <div class="user-menu">
+                    <button class="login-btn" id="loginBtn">
+                        <i class="fas fa-user"></i>
+                        <span>Login</span>
+                    </button>
+                    <button class="cart-btn" id="cartBtn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-background">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="hero-title-main">Premium Shopping</span>
+                <span class="hero-title-sub">Redefined</span>
+            </h1>
+            <p class="hero-description">
+                Discover curated collections of premium products with an unparalleled shopping experience
+            </p>
+            <button class="cta-button" onclick="scrollToProducts()">
+                <span>Explore Collection</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+        
+        <div class="hero-stats">
+            <div class="stat-item">
+                <div class="stat-number">10K+</div>
+                <div class="stat-label">Happy Customers</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">500+</div>
+                <div class="stat-label">Premium Products</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Support</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products-section" id="products">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Featured Products</h2>
+                <p class="section-subtitle">Handpicked premium items just for you</p>
+            </div>
+            
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-category="all">All Products</button>
+                <button class="filter-tab" data-category="electronics">Electronics</button>
+                <button class="filter-tab" data-category="fashion">Fashion</button>
+                <button class="filter-tab" data-category="home">Home & Living</button>
+                <button class="filter-tab" data-category="sports">Sports</button>
+            </div>
+            
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be loaded here dynamically -->
+            </div>
+            
+            <div class="load-more-container">
+                <button class="load-more-btn" id="loadMoreBtn">
+                    <span>Load More Products</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Orders Section -->
+    <section class="orders-section" id="orders" style="display: none;">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Your Orders</h2>
+                <p class="section-subtitle">Track your purchase history</p>
+            </div>
+            
+            <div class="orders-container" id="ordersContainer">
+                <div class="empty-state">
+                    <i class="fas fa-shopping-bag empty-icon"></i>
+                    <h3>No orders yet</h3>
+                    <p>Start shopping to see your orders here</p>
+                    <button class="cta-button" onclick="showSection('products')">
+                        Start Shopping
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Admin Section -->
+    <section class="admin-section" id="admin" style="display: none;">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Admin Dashboard</h2>
+                <p class="section-subtitle">Manage orders and inventory</p>
+            </div>
+            
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-tab="orders">All Orders</button>
+                <button class="admin-tab" data-tab="products">Manage Products</button>
+                <button class="admin-tab" data-tab="analytics">Analytics</button>
+            </div>
+            
+            <div class="admin-content">
+                <div class="admin-panel" id="adminOrders">
+                    <div class="admin-orders" id="adminOrdersList">
+                        <!-- Admin orders will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="admin-panel" id="adminProducts" style="display: none;">
+                    <div class="product-management">
+                        <button class="add-product-btn" id="addProductBtn">
+                            <i class="fas fa-plus"></i>
+                            Add New Product
+                        </button>
+                        <div class="products-table">
+                            <!-- Product management table -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-panel" id="adminAnalytics" style="display: none;">
+                    <div class="analytics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="metric-info">
+                                <div class="metric-value" id="totalOrders">0</div>
+                                <div class="metric-label">Total Orders</div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="metric-info">
+                                <div class="metric-value" id="totalRevenue">$0</div>
+                                <div class="metric-label">Total Revenue</div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="metric-info">
+                                <div class="metric-value" id="totalCustomers">0</div>
+                                <div class="metric-label">Customers</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shopping Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Shopping Cart</h3>
+            <button class="close-cart" id="closeCart">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="cart-content">
+            <div class="cart-items" id="cartItems">
+                <!-- Cart items will be loaded here -->
+            </div>
+            
+            <div class="cart-empty" id="cartEmpty">
+                <i class="fas fa-shopping-cart empty-cart-icon"></i>
+                <p>Your cart is empty</p>
+                <button class="continue-shopping" onclick="closeCart()">Continue Shopping</button>
+            </div>
+        </div>
+        
+        <div class="cart-footer" id="cartFooter" style="display: none;">
+            <div class="cart-total">
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span id="cartSubtotal">$0.00</span>
+                </div>
+                <div class="total-row">
+                    <span>Shipping:</span>
+                    <span>Free</span>
+                </div>
+                <div class="total-row total-final">
+                    <span>Total:</span>
+                    <span id="cartTotal">$0.00</span>
+                </div>
+            </div>
+            
+            <button class="checkout-btn" id="checkoutBtn">
+                <i class="fas fa-credit-card"></i>
+                <span>Proceed to Checkout</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal checkout-modal">
+            <div class="modal-header">
+                <h3>Checkout</h3>
+                <button class="close-modal" onclick="closeCheckoutModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="checkout-steps">
+                    <div class="step active" data-step="1">
+                        <span class="step-number">1</span>
+                        <span class="step-label">Shipping</span>
+                    </div>
+                    <div class="step" data-step="2">
+                        <span class="step-number">2</span>
+                        <span class="step-label">Payment</span>
+                    </div>
+                    <div class="step" data-step="3">
+                        <span class="step-number">3</span>
+                        <span class="step-label">Review</span>
+                    </div>
+                </div>
+                
+                <form class="checkout-form" id="checkoutForm">
+                    <!-- Step 1: Shipping Information -->
+                    <div class="form-step active" data-step="1">
+                        <h4>Shipping Information</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="firstName">First Name</label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name</label>
+                                <input type="text" id="lastName" name="lastName" required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="address">Address</label>
+                                <input type="text" id="address" name="address" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" name="city" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="zipCode">ZIP Code</label>
+                                <input type="text" id="zipCode" name="zipCode" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Payment Information -->
+                    <div class="form-step" data-step="2">
+                        <h4>Payment Information</h4>
+                        <div class="payment-methods">
+                            <div class="payment-method active" data-method="card">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Credit/Debit Card</span>
+                            </div>
+                            <div class="payment-method" data-method="paypal">
+                                <i class="fab fa-paypal"></i>
+                                <span>PayPal</span>
+                            </div>
+                        </div>
+                        
+                        <div class="card-form" id="cardForm">
+                            <div class="form-group">
+                                <label for="cardNumber">Card Number</label>
+                                <input type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" required>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="expiryDate">Expiry Date</label>
+                                    <input type="text" id="expiryDate" name="expiryDate" placeholder="MM/YY" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cvv">CVV</label>
+                                    <input type="text" id="cvv" name="cvv" placeholder="123" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cardName">Name on Card</label>
+                                <input type="text" id="cardName" name="cardName" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Order Review -->
+                    <div class="form-step" data-step="3">
+                        <h4>Order Summary</h4>
+                        <div class="order-summary" id="orderSummary">
+                            <!-- Order items will be displayed here -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="prevStepBtn" onclick="prevCheckoutStep()">Previous</button>
+                <button class="btn btn-primary" id="nextStepBtn" onclick="nextCheckoutStep()">Next</button>
+                <button class="btn btn-success" id="placeOrderBtn" onclick="placeOrder()" style="display: none;">
+                    <i class="fas fa-check"></i>
+                    Place Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal login-modal">
+            <div class="modal-header">
+                <h3 id="authTitle">Sign In</h3>
+                <button class="close-modal" onclick="closeLoginModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchAuthMode('login')">Sign In</button>
+                    <button class="auth-tab" onclick="switchAuthMode('register')">Sign Up</button>
+                </div>
+                
+                <form class="auth-form" id="authForm">
+                    <div class="form-group" id="nameGroup" style="display: none;">
+                        <label for="authName">Full Name</label>
+                        <input type="text" id="authName" name="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="authEmail">Email Address</label>
+                        <input type="email" id="authEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="authPassword">Password</label>
+                        <input type="password" id="authPassword" name="password" required>
+                    </div>
+                    <div class="form-group" id="confirmPasswordGroup" style="display: none;">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <span id="authButtonText">Sign In</span>
+                    </button>
+                </form>
+                
+                <div class="auth-divider">
+                    <span>or continue with</span>
+                </div>
+                
+                <div class="social-auth">
+                    <button class="social-btn google">
+                        <i class="fab fa-google"></i>
+                        Google
+                    </button>
+                    <button class="social-btn facebook">
+                        <i class="fab fa-facebook-f"></i>
+                        Facebook
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
