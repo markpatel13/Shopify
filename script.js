@@ -168,6 +168,46 @@ function setupEventListeners() {
     document.getElementById('loginBtn').addEventListener('click', openLoginModal);
     document.getElementById('authForm').addEventListener('submit', handleAuth);
     
+    // Add Product functionality
+    const addProductBtn = document.getElementById("addProductBtn");
+    if (addProductBtn) {
+        addProductBtn.addEventListener("click", () => {
+            openAddProductModal();
+        });
+    }
+
+    // Add Product form submission
+    const addProductForm = document.getElementById("addProductForm");
+    if (addProductForm) {
+        addProductForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const newProduct = {
+                id: products.length + 1,
+                name: document.getElementById("productName").value,
+                price: parseFloat(document.getElementById("productPrice").value),
+                category: document.getElementById("productCategory").value.toLowerCase(),
+                image: document.getElementById("productImage").value,
+                description: "",
+                rating: 0,
+                reviews: 0
+            };
+
+            // Add product to products array
+            products.push(newProduct);
+
+            // Re-render product management table
+            updateAdminProducts();
+
+            // Close modal and reset form
+            closeAddProductModal();
+            addProductForm.reset();
+
+            // Show success message
+            showToast("Product added successfully!", "success");
+        });
+    }
+    
     // Filter tabs
     document.querySelectorAll('.filter-tab').forEach(tab => {
         tab.addEventListener('click', handleCategoryFilter);
@@ -247,24 +287,37 @@ function handleNavigation(e) {
 }
 
 // Show specific section
-function showSection(sectionId) {
-    // Hide all sections
-    document.querySelectorAll('section').forEach(section => {
-        section.style.display = 'none';
-    });
+// function showSection(sectionId) {
+//     // Hide all sections
+//     document.querySelectorAll('section').forEach(section => {
+//         section.style.display = 'none';
+//     });
     
-    // Show target section
-    const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-        targetSection.style.display = 'block';
-        currentSection = sectionId;
+//     // Show target section
+//     const targetSection = document.getElementById(sectionId);
+//     if (targetSection) {
+//         targetSection.style.display = 'block';
+//         currentSection = sectionId;
         
-        // Load section-specific data
-        if (sectionId === 'orders') {
-            loadUserOrders();
-        } else if (sectionId === 'admin') {
-            loadAdminData();
-        }
+//         // Load section-specific data
+//         if (sectionId === 'orders') {
+//             loadUserOrders();
+//         } else if (sectionId === 'admin') {
+//             loadAdminData();
+//         }
+//     }
+// }
+function showSection(sectionId) {
+    // hide all sections
+    document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
+    
+    // show requested section
+    const section = document.getElementById(sectionId);
+    if (section) section.style.display = "block";
+
+    // if admin is shown, load data
+    if (sectionId === "admin") {
+        loadAdminData();
     }
 }
 
@@ -445,6 +498,7 @@ function updateCartQuantity(productId, newQuantity) {
         item.quantity = newQuantity;
         updateCartUI();
         saveCartToStorage();
+        updateOrderSummary(); // Update checkout modal totals if it's open
     }
 }
 
@@ -460,6 +514,9 @@ function updateCartUI() {
     // Update cart count
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     cartCount.textContent = totalItems;
+    
+    // Update order summary in checkout if it's open
+    updateOrderSummary();
     
     if (cart.length === 0) {
         cartItems.style.display = 'none';
@@ -630,6 +687,36 @@ function logout() {
     }
 }
 
+function loadAdminData() {
+    updateAdminOrders();
+    updateAdminProducts();
+
+    // only run metrics if analytics panel exists in DOM
+    if (document.getElementById("totalOrders")) {
+        updateAdminMetrics();
+    }
+}
+
+function updateAdminMetrics() {
+    const totalOrdersEl = document.getElementById("totalOrders");
+    const totalRevenueEl = document.getElementById("totalRevenue");
+    const totalCustomersEl = document.getElementById("totalCustomers");
+
+    if (!totalOrdersEl || !totalRevenueEl || !totalCustomersEl) {
+        console.warn("Admin analytics section not yet visible");
+        return;
+    }
+
+    totalOrdersEl.textContent = allOrders.length;
+
+    const totalRevenue = allOrders.reduce((sum, order) => sum + order.total, 0);
+    totalRevenueEl.textContent = `$${totalRevenue.toFixed(2)}`;
+
+    const uniqueCustomers = new Set(allOrders.map(order => order.customer.email)).size;
+    totalCustomersEl.textContent = uniqueCustomers;
+}
+
+
 // Checkout functionality
 function openCheckoutModal() {
     if (!currentUser) {
@@ -655,6 +742,16 @@ function closeCheckoutModal() {
     document.body.style.overflow = 'auto';
 }
 
+function openAddProductModal() {
+    document.getElementById("addProductModal").style.display = "flex";
+    document.body.style.overflow = 'hidden';
+}
+
+function closeAddProductModal() {
+    document.getElementById("addProductModal").style.display = "none";
+    document.body.style.overflow = 'auto';
+}
+
 function nextCheckoutStep() {
     if (currentCheckoutStep < 3) {
         if (validateCurrentStep()) {
@@ -672,40 +769,89 @@ function prevCheckoutStep() {
 }
 
 function validateCurrentStep() {
-    const currentStepElement = document.querySelector(`.form-step[data-step="${currentCheckoutStep}"]`);
-    const requiredInputs = currentStepElement.querySelectorAll('input[required]');
+    const currentForm = document.querySelector(`.form-step[data-step="${currentCheckoutStep}"]`);
+    const inputs = currentForm.querySelectorAll('input[required], select[required]');
+    let isValid = true;
     
-    for (let input of requiredInputs) {
-        if (!input.value.trim()) {
-            input.focus();
-            showToast('Please fill in all required fields', 'warning');
+    inputs.forEach(input => {
+        if (!input.value) {
+            isValid = false;
+            input.classList.add('invalid');
+            showToast(`Please fill in ${input.previousElementSibling.textContent}`, 'error');
+        } else {
+            input.classList.remove('invalid');
+        }
+    });
+    
+    // Simplified validation for dummy orders
+    if (currentCheckoutStep === 2 && isValid) {
+        const cardNumber = document.getElementById('cardNumber').value;
+        const expiryDate = document.getElementById('expiryDate').value;
+        const cvv = document.getElementById('cvv').value;
+        
+        // For testing, accept any card number that's at least 8 digits
+        if (!/^\d{8,}$/.test(cardNumber.replace(/\s/g, ''))) {
+            showToast('For testing: Enter at least 8 digits', 'warning');
+            return false;
+        }
+        
+        // For testing, accept any date in MM/YY format
+        if (!/^\d{2}\/\d{2}$/.test(expiryDate)) {
+            showToast('For testing: Use MM/YY format', 'warning');
+            return false;
+        }
+        
+        // For testing, accept any 3-digit number
+        if (!/^\d{3}$/.test(cvv)) {
+            showToast('For testing: Enter any 3 digits', 'warning');
             return false;
         }
     }
     
-    return true;
+    return isValid;
 }
 
 function updateCheckoutStep() {
-    // Update step indicators
-    document.querySelectorAll('.step').forEach(step => {
-        const stepNumber = parseInt(step.dataset.step);
-        if (stepNumber <= currentCheckoutStep) {
+    const steps = document.querySelectorAll('.step');
+    const formSteps = document.querySelectorAll('.form-step');
+    
+    // Update steps
+    steps.forEach((step, index) => {
+        if (index + 1 <= currentCheckoutStep) {
             step.classList.add('active');
         } else {
             step.classList.remove('active');
         }
     });
     
-    // Update form steps
-    document.querySelectorAll('.form-step').forEach(step => {
-        const stepNumber = parseInt(step.dataset.step);
-        if (stepNumber === currentCheckoutStep) {
+    // Update form visibility
+    formSteps.forEach((step, index) => {
+        if (index + 1 === currentCheckoutStep) {
             step.classList.add('active');
         } else {
             step.classList.remove('active');
         }
     });
+    
+    // Update buttons
+    const prevBtn = document.getElementById('prevStepBtn');
+    const nextBtn = document.getElementById('nextStepBtn');
+    const confirmBtn = document.getElementById('confirmOrderBtn');
+    
+    prevBtn.style.display = currentCheckoutStep === 1 ? 'none' : '';
+    nextBtn.style.display = currentCheckoutStep === 3 ? 'none' : '';
+    confirmBtn.style.display = currentCheckoutStep === 3 ? '' : 'none';
+    
+    // Update summary for final step
+    if (currentCheckoutStep === 3) {
+        updateOrderReview();
+    }
+    
+    // Scroll to top of form
+    document.querySelector('.checkout-modal').scrollTop = 0;
+}
+
+function updateOrderReview() {
     
     // Update buttons
     const prevBtn = document.getElementById('prevStepBtn');
@@ -724,6 +870,7 @@ function updateCheckoutStep() {
 }
 
 function populateOrderSummary() {
+    updateOrderSummary();
     const orderSummary = document.getElementById('orderSummary');
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     
@@ -814,6 +961,9 @@ function placeOrder() {
                     link.classList.remove('active');
                 }
             });
+
+            // Send email notification (simulated)
+            console.log('Sending order confirmation email to:', currentUser.email, 'for order:', orderId);
         }, 1000);
     }, 2000);
 }
@@ -1061,6 +1211,203 @@ function saveCartToStorage() {
 function saveOrdersToStorage() {
     localStorage.setItem('orders', JSON.stringify(orders));
     localStorage.setItem('allOrders', JSON.stringify(allOrders));
+}
+
+function updateOrderReview() {
+    // Update shipping review
+    const shippingReview = document.getElementById('shippingReview');
+    shippingReview.innerHTML = `
+        <p><strong>${document.getElementById('firstName').value} ${document.getElementById('lastName').value}</strong></p>
+        <p>${document.getElementById('email').value}</p>
+        <p>${document.getElementById('address').value}</p>
+        <p>${document.getElementById('city').value}, ${document.getElementById('state').value} ${document.getElementById('zipCode').value}</p>
+        <p>${document.getElementById('phone').value}</p>
+    `;
+    
+    // Update payment review
+    const paymentReview = document.getElementById('paymentReview');
+    const paymentMethod = document.querySelector('.payment-method.active').dataset.method;
+    if (paymentMethod === 'card') {
+        const cardNumber = document.getElementById('cardNumber').value;
+        const lastFour = cardNumber.slice(-4);
+        paymentReview.innerHTML = `
+            <p>Credit Card ending in ${lastFour}</p>
+            <p>Expires: ${document.getElementById('expiryDate').value}</p>
+        `;
+    } else {
+        paymentReview.innerHTML = '<p>PayPal</p>';
+    }
+    
+    // Update order summary
+    updateOrderSummary();
+}
+
+function updateOrderSummary() {
+    const summaryItems = document.getElementById('summaryItems');
+    const subtotalAmount = document.getElementById('subtotalAmount');
+    const shippingAmount = document.getElementById('shippingAmount');
+    const taxAmount = document.getElementById('taxAmount');
+    const totalAmount = document.getElementById('totalAmount');
+    
+    if (!summaryItems || !subtotalAmount || !shippingAmount || !taxAmount || !totalAmount) {
+        return; // Elements not found, probably modal not open
+    }
+    
+    // Calculate totals
+    const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const shipping = subtotal > 100 ? 0 : 10;
+    const tax = subtotal * 0.08; // 8% tax
+    const total = subtotal + shipping + tax;
+    
+    // Update summary items
+    summaryItems.innerHTML = cart.map(item => `
+        <div class="summary-item">
+            <div class="item-info">
+                <img src="${item.image}" alt="${item.name}" width="50" height="50">
+                <div>
+                    <h6>${item.name}</h6>
+                    <p>Qty: ${item.quantity}</p>
+                </div>
+            </div>
+            <span>$${(item.price * item.quantity).toFixed(2)}</span>
+        </div>
+    `).join('');
+    
+    // Update totals
+    subtotalAmount.textContent = `$${subtotal.toFixed(2)}`;
+    shippingAmount.textContent = shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`;
+    taxAmount.textContent = `$${tax.toFixed(2)}`;
+    totalAmount.textContent = `$${total.toFixed(2)}`;
+    
+    // Also update the review step if it's visible
+    const reviewTotal = document.querySelector('.form-step[data-step="3"] .order-review .order-summary');
+    if (reviewTotal && currentCheckoutStep === 3) {
+        reviewTotal.innerHTML = `
+            <div class="review-totals">
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span>$${subtotal.toFixed(2)}</span>
+                </div>
+                <div class="total-row">
+                    <span>Shipping:</span>
+                    <span>${shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</span>
+                </div>
+                <div class="total-row">
+                    <span>Tax:</span>
+                    <span>$${tax.toFixed(2)}</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>Total:</span>
+                    <span>$${total.toFixed(2)}</span>
+                </div>
+            </div>
+        `;
+    }
+}
+
+function confirmOrder() {
+    if (!validateCurrentStep()) {
+        return;
+    }
+    
+    // Show loading state
+    showLoadingOverlay();
+    
+    // Calculate totals
+    const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const shipping = subtotal > 100 ? 0 : 10;
+    const tax = subtotal * 0.08;
+    const total = subtotal + shipping + tax;
+    
+    // Create detailed order object
+    const order = {
+        id: 'ORD-' + Date.now(),
+        date: new Date().toISOString(),
+        customer: {
+            name: `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            address: {
+                street: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                zipCode: document.getElementById('zipCode').value,
+                full: `${document.getElementById('address').value}, ${document.getElementById('city').value}, ${document.getElementById('state').value} ${document.getElementById('zipCode').value}`
+            }
+        },
+        items: cart.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image,
+            subtotal: item.price * item.quantity
+        })),
+        payment: {
+            method: document.querySelector('.payment-method.active').dataset.method,
+            details: document.querySelector('.payment-method.active').dataset.method === 'card' ? {
+                cardType: 'Credit Card',
+                last4: document.getElementById('cardNumber').value.slice(-4),
+                expiry: document.getElementById('expiryDate').value
+            } : {
+                type: 'PayPal'
+            }
+        },
+        summary: {
+            subtotal: subtotal,
+            shipping: shipping,
+            tax: tax,
+            total: total
+        },
+        status: 'pending',
+        statusHistory: [{
+            status: 'pending',
+            date: new Date().toISOString(),
+            note: 'Order placed by customer'
+        }],
+        timestamps: {
+            created: new Date().toISOString(),
+            updated: new Date().toISOString(),
+            estimated_delivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
+        }
+    };
+    
+    // Initialize arrays if they don't exist
+    if (!Array.isArray(orders)) orders = [];
+    if (!Array.isArray(allOrders)) allOrders = [];
+    
+    // Add to both user orders and admin orders
+    orders.push(order);
+    allOrders.push(order);
+    saveOrdersToStorage();
+    
+    // Clear cart
+    cart = [];
+    saveCartToStorage();
+    updateCartCount();
+    
+    // Update UI after short delay to simulate processing
+    setTimeout(() => {
+        // Hide loading
+        hideLoadingOverlay();
+        
+        // Close modal
+        closeCheckoutModal();
+        
+        // Show success message with order ID
+        showToast(`Order #${order.id} placed successfully! Check your email for confirmation.`, 'success');
+        
+        // Refresh orders if we're on the orders page
+        if (currentSection === 'orders') {
+            displayOrders();
+        }
+        
+        // Refresh admin panel if we're on the admin page and user is admin
+        if (currentSection === 'admin' && isAdmin) {
+            updateAdminMetrics();
+            displayAdminOrders();
+        }
+    }, 2000);
 }
 
 function loadStoredData() {

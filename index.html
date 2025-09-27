@@ -247,7 +247,7 @@
     <div class="modal-overlay" id="checkoutModal">
         <div class="modal checkout-modal">
             <div class="modal-header">
-                <h3>Checkout</h3>
+                <h3>Secure Checkout</h3>
                 <button class="close-modal" onclick="closeCheckoutModal()">
                     <i class="fas fa-times"></i>
                 </button>
@@ -256,98 +256,236 @@
             <div class="modal-body">
                 <div class="checkout-steps">
                     <div class="step active" data-step="1">
+                        <div class="step-icon">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
                         <span class="step-number">1</span>
                         <span class="step-label">Shipping</span>
                     </div>
                     <div class="step" data-step="2">
+                        <div class="step-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
                         <span class="step-number">2</span>
                         <span class="step-label">Payment</span>
                     </div>
                     <div class="step" data-step="3">
+                        <div class="step-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
                         <span class="step-number">3</span>
                         <span class="step-label">Review</span>
                     </div>
                 </div>
                 
-                <form class="checkout-form" id="checkoutForm">
-                    <!-- Step 1: Shipping Information -->
-                    <div class="form-step active" data-step="1">
-                        <h4>Shipping Information</h4>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="firstName">First Name</label>
-                                <input type="text" id="firstName" name="firstName" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="lastName">Last Name</label>
-                                <input type="text" id="lastName" name="lastName" required>
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="email">Email Address</label>
-                                <input type="email" id="email" name="email" required>
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="address">Address</label>
-                                <input type="text" id="address" name="address" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="city">City</label>
-                                <input type="text" id="city" name="city" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="zipCode">ZIP Code</label>
-                                <input type="text" id="zipCode" name="zipCode" required>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Step 2: Payment Information -->
-                    <div class="form-step" data-step="2">
-                        <h4>Payment Information</h4>
-                        <div class="payment-methods">
-                            <div class="payment-method active" data-method="card">
-                                <i class="fas fa-credit-card"></i>
-                                <span>Credit/Debit Card</span>
-                            </div>
-                            <div class="payment-method" data-method="paypal">
-                                <i class="fab fa-paypal"></i>
-                                <span>PayPal</span>
-                            </div>
-                        </div>
-                        
-                        <div class="card-form" id="cardForm">
-                            <div class="form-group">
-                                <label for="cardNumber">Card Number</label>
-                                <input type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" required>
-                            </div>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="expiryDate">Expiry Date</label>
-                                    <input type="text" id="expiryDate" name="expiryDate" placeholder="MM/YY" required>
+                <div class="checkout-container">
+                    <div class="checkout-main">
+                        <form class="checkout-form" id="checkoutForm">
+                            <!-- Step 1: Shipping Information -->
+                            <div class="form-step active" data-step="1">
+                                <div class="step-header">
+                                    <h4><i class="fas fa-shipping-fast"></i> Shipping Information</h4>
+                                    <p class="step-description">Enter your shipping details to receive your order</p>
                                 </div>
-                                <div class="form-group">
-                                    <label for="cvv">CVV</label>
-                                    <input type="text" id="cvv" name="cvv" placeholder="123" required>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="firstName">First Name</label>
+                                        <input type="text" id="firstName" name="firstName" placeholder="John" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lastName">Last Name</label>
+                                        <input type="text" id="lastName" name="lastName" placeholder="Doe" required>
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label for="email">Email Address</label>
+                                        <input type="email" id="email" name="email" placeholder="john.doe@example.com" required>
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label for="address">Street Address</label>
+                                        <input type="text" id="address" name="address" placeholder="123 Main St, Apt 4B" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="city">City</label>
+                                        <input type="text" id="city" name="city" placeholder="New York" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="zipCode">ZIP Code</label>
+                                        <input type="text" id="zipCode" name="zipCode" placeholder="10001" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="state">State</label>
+                                        <select id="state" name="state" required>
+                                            <option value="">Select State</option>
+                                            <option value="NY">New York</option>
+                                            <option value="CA">California</option>
+                                            <!-- Add more states -->
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone">Phone</label>
+                                        <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" required>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="cardName">Name on Card</label>
-                                <input type="text" id="cardName" name="cardName" required>
+                            
+                            <!-- Step 2: Payment Information -->
+                            <div class="form-step" data-step="2">
+                                <div class="step-header">
+                                    <h4><i class="fas fa-credit-card"></i> Payment Information</h4>
+                                    <p class="step-description">Choose your preferred payment method</p>
+                                </div>
+                                <div class="payment-methods">
+                                    <div class="payment-method active" data-method="card">
+                                        <div class="payment-icon">
+                                            <i class="fas fa-credit-card"></i>
+                                        </div>
+                                        <div class="payment-info">
+                                            <span class="payment-name">Credit/Debit Card</span>
+                                            <span class="payment-description">Pay securely with your card</span>
+                                        </div>
+                                        <div class="payment-brands">
+                                            <i class="fab fa-cc-visa"></i>
+                                            <i class="fab fa-cc-mastercard"></i>
+                                            <i class="fab fa-cc-amex"></i>
+                                        </div>
+                                    </div>
+                                    <div class="payment-method" data-method="paypal">
+                                        <div class="payment-icon paypal">
+                                            <i class="fab fa-paypal"></i>
+                                        </div>
+                                        <div class="payment-info">
+                                            <span class="payment-name">PayPal</span>
+                                            <span class="payment-description">Fast and secure way to pay</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card-form" id="cardForm">
+                                    <div class="card-preview">
+                                        <div class="card-front">
+                                            <div class="card-type">
+                                                <i class="fab fa-cc-visa"></i>
+                                            </div>
+                                            <div class="card-number-display">
+                                                •••• •••• •••• ••••
+                                            </div>
+                                            <div class="card-details">
+                                                <div class="card-holder">
+                                                    <span>Card Holder</span>
+                                                    <span class="value">JOHN DOE</span>
+                                                </div>
+                                                <div class="card-expires">
+                                                    <span>Expires</span>
+                                                    <span class="value">MM/YY</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cardNumber">Card Number</label>
+                                        <input type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" required maxlength="19">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cardName">Name on Card</label>
+                                        <input type="text" id="cardName" name="cardName" placeholder="John Doe" required>
+                                    </div>
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label for="expiryDate">Expiry Date</label>
+                                            <input type="text" id="expiryDate" name="expiryDate" placeholder="MM/YY" required maxlength="5">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="cvv">Security Code (CVV)</label>
+                                            <input type="password" id="cvv" name="cvv" placeholder="•••" required maxlength="4">
+                                            <div class="cvv-hint">
+                                                <span class="hint-text">3 or 4 digits on the back of your card</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 3: Order Review -->
+                            <div class="form-step" data-step="3">
+                                <div class="step-header">
+                                    <h4><i class="fas fa-clipboard-check"></i> Order Review</h4>
+                                    <p class="step-description">Review your order details before confirming</p>
+                                </div>
+                                <div class="order-review">
+                                    <div class="order-summary" id="orderSummary">
+                                        <!-- Order items will be displayed here -->
+                                    </div>
+                                    <div class="review-sections">
+                                        <div class="review-section">
+                                            <h5><i class="fas fa-shipping-fast"></i> Shipping Address</h5>
+                                            <div class="review-content" id="shippingReview"></div>
+                                            <button type="button" class="edit-btn" onclick="editStep(1)">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                        </div>
+                                        <div class="review-section">
+                                            <h5><i class="fas fa-credit-card"></i> Payment Method</h5>
+                                            <div class="review-content" id="paymentReview"></div>
+                                            <button type="button" class="edit-btn" onclick="editStep(2)">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="checkout-sidebar">
+                        <div class="order-summary-card">
+                            <h4>Order Summary</h4>
+                            <div class="summary-items" id="summaryItems">
+                                <!-- Summary items will be displayed here -->
+                            </div>
+                            <div class="summary-totals">
+                                <div class="summary-row">
+                                    <span>Subtotal</span>
+                                    <span id="subtotalAmount">$0.00</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Shipping</span>
+                                    <span id="shippingAmount">$0.00</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Tax</span>
+                                    <span id="taxAmount">$0.00</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Total</span>
+                                    <span id="totalAmount">$0.00</span>
+                                </div>
+                            </div>
+                            <div class="promo-code">
+                                <div class="input-icon">
+                                    <i class="fas fa-tag"></i>
+                                    <input type="text" id="promoCode" placeholder="Enter promo code">
+                                </div>
+                                <button type="button" class="apply-promo">Apply</button>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Step 3: Order Review -->
-                    <div class="form-step" data-step="3">
-                        <h4>Order Summary</h4>
-                        <div class="order-summary" id="orderSummary">
-                            <!-- Order items will be displayed here -->
-                        </div>
-                    </div>
-                </form>
+                </div>
             </div>
             
             <div class="modal-footer">
+                <div class="checkout-actions">
+                    <button type="button" class="btn btn-outline" onclick="prevCheckoutStep()" id="prevStepBtn" style="display: none;">
+                        <i class="fas fa-arrow-left"></i>
+                        Previous Step
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="nextCheckoutStep()" id="nextStepBtn">
+                        Next Step
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="confirmOrder()" id="confirmOrderBtn" style="display: none;">
+                        <i class="fas fa-check"></i>
+                        Confirm Order
+                    </button>
+                </div>
                 <button class="btn btn-secondary" id="prevStepBtn" onclick="prevCheckoutStep()">Previous</button>
                 <button class="btn btn-primary" id="nextStepBtn" onclick="nextCheckoutStep()">Next</button>
                 <button class="btn btn-success" id="placeOrderBtn" onclick="placeOrder()" style="display: none;">
@@ -423,6 +561,39 @@
         <div class="loading-spinner">
             <div class="spinner"></div>
             <p>Loading...</p>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal-overlay" id="addProductModal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add New Product</h3>
+                <button class="close-modal" onclick="closeAddProductModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addProductForm">
+                    <div class="form-group">
+                        <label for="productName">Product Name</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productPrice">Price</label>
+                        <input type="number" id="productPrice" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Category</label>
+                        <input type="text" id="productCategory" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productImage">Image URL</label>
+                        <input type="text" id="productImage" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Product</button>
+                </form>
+            </div>
         </div>
     </div>
 
